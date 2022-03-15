@@ -24,11 +24,11 @@ func NewBitmap() *Bitmap {
 	}
 }
 
-func (b *Bitmap) Set(num int) error {
+func (b *Bitmap) Set(num int) (bool, error) {
 	if num > math.MaxInt32 {
 		// https://github.com/golang/go/issues/38673
 		// easy get wrong for make a huge slice
-		return errors.New(fmt.Sprintf("Not support for length > %d(MaxInt32)", math.MaxInt32))
+		return false, errors.New(fmt.Sprintf("Not support for length > %d(MaxInt32)", math.MaxInt32))
 	}
 	offset := num % 64
 	pos := num / 64
@@ -47,8 +47,9 @@ func (b *Bitmap) Set(num int) error {
 	if b.bitM[pos]&(1<<offset) == 0 {
 		b.bitM[pos] = b.bitM[pos] | (1 << offset)
 		b.length++
+		return true, nil
 	}
-	return nil
+	return false, nil
 }
 
 func (b *Bitmap) Get(num int) bool {
@@ -57,14 +58,15 @@ func (b *Bitmap) Get(num int) bool {
 	return len(b.bitM) > pos && b.bitM[pos]&(1<<offset) != 0
 }
 
-func (b *Bitmap) Clean(num int) {
+func (b *Bitmap) Clear(num int) (bool, error) {
 	offset := num % 64
 	pos := num / 64
 	if pos > len(b.bitM) {
-		return
+		return false, nil
 	}
 	b.bitM[pos] = b.bitM[pos] & (^uint64(1 << offset))
 	b.length--
+	return true, nil
 }
 
 func (b *Bitmap) Length() int {

@@ -21,9 +21,10 @@ func TestBitmap_Function(t *testing.T) {
 	t.Log(bitmap.Get(math.MaxInt16) == true)
 	bitmap.Set(math.MaxInt32)
 	t.Log(bitmap.Get(math.MaxInt32) == true)
-	bitmap.Clean(math.MaxInt32)
+	bitmap.Clear(math.MaxInt32)
 	t.Log(bitmap.Get(math.MaxInt32) == false)
-	t.Logf(bitmap.Set(math.MaxInt64).Error())
+	_, err := bitmap.Set(math.MaxInt64)
+	t.Log(err)
 }
 
 func BenchmarkBitmap_Set(b *testing.B) {
